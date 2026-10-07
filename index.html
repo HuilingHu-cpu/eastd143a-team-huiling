@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keeping Land in the Family?</title>
+<meta name="description" content="Tracing kinship, accumulation, and division across Chinese land deeds from Fujian, 1875–1936. EASTD 143A hackathon project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+TC:wght@500;700;900&display=swap">
+<style>
+/* Paper-and-ink palette with one seal-red accent; kin terms are marked in red throughout. */
+:root {
+  --bg: #ECE7DD;
+  --surface: #F7F4EE;
+  --ink: #23201C;
+  --muted: #6A645A;
+  --rule: #CFC7B8;
+  --accent: #A8322A;
+  --accent-soft: #F1DCD6;
+  --blue: #2F5E7A;
+  --gold: #6B5A1E;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-cjk: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1A18; --surface: #252320; --ink: #ECE6DA; --muted: #A79F92; --rule: #3D3A35;
+    --accent: #E0685C; --accent-soft: #3A2522; --blue: #7DB3D3; --gold: #D2B65E; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1B1A18; --surface: #252320; --ink: #ECE6DA; --muted: #A79F92; --rule: #3D3A35;
+  --accent: #E0685C; --accent-soft: #3A2522; --blue: #7DB3D3; --gold: #D2B65E; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: clamp(16px, .5vw + 14px, 19px); line-height: 1.55;
+}
+.wrap { max-width: 1080px; margin-inline: auto; padding-inline: 16px; }
+@media (min-width: 720px) { .wrap { padding-inline: 32px; } }
+
+a { color: var(--accent); text-underline-offset: .15em; }
+a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cjk { font-family: var(--font-cjk); }
+.mono { font-family: var(--font-mono); font-size: .85em; }
+.kin { color: var(--accent); font-family: var(--font-cjk); font-weight: 700; }
+
+/* nav */
+nav.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule); }
+nav.top .wrap { display: flex; gap: 1.2em; align-items: center; overflow-x: auto; white-space: nowrap; padding-block: .6em; font-family: var(--font-mono); font-size: .72em; letter-spacing: .06em; text-transform: uppercase; }
+nav.top a { color: var(--muted); text-decoration: none; }
+nav.top a:hover { color: var(--accent); }
+nav.top .brand { color: var(--ink); font-weight: 600; margin-right: auto; }
+
+/* hero */
+header.hero { padding-block: clamp(3em, 10vw, 7em) clamp(2em, 6vw, 4em); border-bottom: 1px solid var(--rule); }
+.hero-grid { display: grid; grid-template-columns: 1fr auto; gap: 2em; align-items: end; }
+.eyebrow { font-family: var(--font-mono); font-size: .72em; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 1em; }
+.eyebrow b { color: var(--accent); font-weight: 600; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.08; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.4rem, 7vw, 5.4rem); }
+h1 .q { color: var(--accent); }
+.sub { font-size: clamp(1.1rem, 1.6vw + .6rem, 1.5rem); color: var(--muted); margin: .8em 0 0; max-width: 40ch; }
+.seal { font-family: var(--font-cjk); font-weight: 900; font-size: clamp(4rem, 12vw, 8.5rem); line-height: 1; color: var(--accent); border: .06em solid var(--accent); padding: .06em .1em; border-radius: .06em; writing-mode: vertical-rl; }
+@media (max-width: 600px) { .hero-grid { grid-template-columns: 1fr; } .seal { display: none; } }
+
+/* sections */
+section { padding-block: clamp(2.5em, 6vw, 4.5em); border-bottom: 1px solid var(--rule); }
+section > .wrap > h2 { font-size: clamp(1.7rem, 3.5vw, 2.6rem); margin-bottom: .5em; }
+.num { font-family: var(--font-mono); font-size: .7em; color: var(--accent); letter-spacing: .1em; display: block; margin-bottom: .6em; }
+p { margin: 0 0 1em; max-width: 66ch; }
+.lead { font-size: 1.15em; max-width: 58ch; }
+.question { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.3rem, 2.4vw + .5rem, 2rem); line-height: 1.25; max-width: 30ch; border-left: 5px solid var(--accent); padding-left: .7em; margin: .3em 0 1em; }
+
+/* stat tiles */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11em, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.5em 0; }
+.stat { background: var(--surface); padding: 1em 1.1em; min-width: 0; }
+.stat .v { font-family: var(--font-display); font-weight: 800; font-size: 2.3em; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: .85em; color: var(--muted); margin-top: .35em; }
+
+/* period bars */
+.bars { display: grid; gap: .45em; margin: 1em 0 .5em; max-width: 720px; }
+.bar { display: grid; grid-template-columns: 11em 1fr 2.6em; gap: .7em; align-items: center; font-size: .88em; }
+.bar .track { height: 1.1em; background: var(--surface); border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--muted); }
+.bar.focus .fill { background: var(--accent); }
+.bar .n { font-family: var(--font-mono); font-size: .9em; text-align: right; font-variant-numeric: tabular-nums; }
+.bar .lab span { color: var(--muted); font-size: .85em; }
+@media (max-width: 520px) { .bar { grid-template-columns: 7.5em 1fr 2.2em; } .bar .lab span { display: none; } }
+.note { font-size: .85em; color: var(--muted); }
+
+/* evidence ladder */
+.ladder { display: grid; gap: .8em; margin: 1.5em 0; }
+.rung { display: grid; grid-template-columns: 5.5em 1fr; gap: 1em; background: var(--surface); border: 1px solid var(--rule); border-left: 6px solid var(--rule); padding: .9em 1.1em; }
+.rung.strong { border-left-color: var(--accent); }
+.rung.mid { border-left-color: var(--gold); }
+.rung.weak { border-left-color: var(--blue); }
+.rung .v { font-family: var(--font-display); font-weight: 800; font-size: 1.9em; line-height: 1; font-variant-numeric: tabular-nums; }
+.rung .v small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: .32em; color: var(--muted); letter-spacing: .05em; margin-top: .4em; }
+.rung h3 { font-size: 1.05em; margin-bottom: .25em; }
+.rung p { margin: 0; font-size: .92em; }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: .68em; letter-spacing: .06em; text-transform: uppercase; padding: .1em .5em; border-radius: 3px; border: 1px solid currentColor; vertical-align: .15em; margin-left: .4em; }
+.strong .tag { color: var(--accent); } .mid .tag { color: var(--gold); } .weak .tag { color: var(--blue); }
+
+/* comparison table */
+.tbl-wrap { overflow-x: auto; margin: 1.5em 0; border: 1px solid var(--rule); }
+table.cmp { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .9em; background: var(--surface); }
+.cmp th, .cmp td { text-align: left; padding: .65em .9em; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.cmp th { font-family: var(--font-mono); font-size: .75em; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.cmp tr:last-child td { border-bottom: 0; }
+.cmp td:first-child { font-family: var(--font-cjk); font-weight: 700; white-space: nowrap; }
+
+/* case timelines */
+.case { padding-top: 1.5em; margin-top: 1.5em; border-top: 1px dashed var(--rule); }
+.case:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+.case-head { display: grid; grid-template-columns: auto 1fr; gap: .4em 1em; align-items: baseline; margin-bottom: .6em; }
+.case-head .k { font-family: var(--font-mono); font-size: .75em; color: var(--accent); letter-spacing: .1em; }
+.case-head h3 { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.case-head h3 .cjk { font-weight: 900; }
+.mech { font-family: var(--font-mono); font-size: .8em; background: var(--accent-soft); color: var(--ink); padding: .5em .8em; border-radius: 4px; display: inline-block; margin: 0 0 1.2em; }
+ol.tl { list-style: none; margin: 0; padding: 0; position: relative; }
+ol.tl::before { content: ""; position: absolute; left: 4.2em; top: .4em; bottom: .4em; width: 2px; background: var(--rule); }
+.ev { display: grid; grid-template-columns: 3.6em 1.2em 1fr; gap: 0 .6em; padding-bottom: 1.2em; position: relative; }
+.ev .yr { font-family: var(--font-mono); font-weight: 600; font-size: .9em; text-align: right; padding-top: .1em; font-variant-numeric: tabular-nums; }
+.ev .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 3px solid var(--muted); margin-top: .3em; justify-self: center; position: relative; z-index: 1; }
+.ev.kin-ev .dot { border-color: var(--accent); background: var(--accent); }
+.ev.out-ev .dot { border-color: var(--blue); background: var(--blue); }
+.ev.div-ev .dot { border-color: var(--gold); background: var(--gold); border-radius: 2px; }
+.ev.reg-ev .dot { border-style: dashed; }
+.ev .body { min-width: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: .7em .95em; }
+.ev .dt { font-family: var(--font-cjk); font-weight: 700; font-size: 1.05em; }
+.ev .dt .en { font-family: var(--font-body); font-weight: 400; color: var(--muted); font-size: .85em; margin-left: .4em; }
+.ev .parties { margin: .25em 0; }
+.ev .meta { display: flex; flex-wrap: wrap; gap: .3em 1.2em; font-size: .82em; color: var(--muted); }
+.ev .meta .cjk { color: var(--ink); }
+.ev .flag { margin-top: .5em; font-size: .82em; border-left: 3px solid var(--accent); padding-left: .6em; }
+.ev .flag b { color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: .4em 1.4em; font-size: .82em; color: var(--muted); margin: 0 0 1.8em; }
+.legend span::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: .4em; vertical-align: -.05em; border: 2px solid var(--muted); }
+.legend .lk::before { background: var(--accent); border-color: var(--accent); }
+.legend .lo::before { background: var(--blue); border-color: var(--blue); }
+.legend .ld::before { background: var(--gold); border-color: var(--gold); border-radius: 2px; }
+.legend .ls::before { background: var(--bg); }
+.legend .lr::before { border-style: dashed; }
+.takeaway { background: var(--surface); border: 1px solid var(--rule); padding: .9em 1.1em; margin-top: .2em; font-size: .95em; max-width: 70ch; }
+.takeaway b { color: var(--accent); }
+
+/* finding */
+.finding { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.25rem, 2vw + .6rem, 1.85rem); line-height: 1.3; max-width: 34ch; margin: .2em 0 1em; }
+.finding em { font-style: normal; color: var(--accent); }
+.mechs { display: grid; grid-template-columns: repeat(auto-fit, minmax(14em, 1fr)); gap: 1.2em; margin: 1.5em 0; }
+.mechs > div { border-top: 3px solid var(--accent); padding-top: .6em; min-width: 0; }
+.mechs h3 { font-size: 1.05em; margin-bottom: .3em; }
+.mechs p { font-size: .92em; margin: 0; }
+
+/* discrepancies */
+.disc { display: grid; gap: 1em; margin: 1.5em 0; }
+.disc article { background: var(--surface); border: 1px solid var(--rule); padding: 1em 1.15em; display: grid; gap: .4em; }
+.disc h3 { font-size: 1.05em; }
+.disc .cmpl { display: grid; grid-template-columns: 7.5em 1fr; gap: .2em .8em; font-size: .9em; }
+.disc .cmpl dt { color: var(--muted); font-family: var(--font-mono); font-size: .82em; padding-top: .15em; }
+.disc .cmpl dd { margin: 0; }
+.status { font-family: var(--font-mono); font-size: .72em; text-transform: uppercase; letter-spacing: .06em; color: var(--gold); }
+
+/* method / credits */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(17em, 1fr)); gap: 1.5em 2.5em; }
+.cols h3 { font-size: 1.05em; margin-bottom: .4em; }
+.cols ul { margin: 0; padding-left: 1.1em; }
+.cols li { margin-bottom: .35em; font-size: .94em; }
+.team { display: grid; grid-template-columns: repeat(auto-fit, minmax(13em, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: 1em; }
+.team div { background: var(--surface); padding: .8em 1em; }
+.team b { display: block; }
+.team span { font-size: .88em; color: var(--muted); }
+footer { padding-block: 2.5em 3.5em; font-size: .85em; color: var(--muted); }
+footer p { max-width: 80ch; }
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Sections">
+  <div class="wrap">
+    <a class="brand" href="#top">Keeping Land in the Family?</a>
+    <a href="#question">Question</a>
+    <a href="#corpus">Corpus</a>
+    <a href="#method">Method</a>
+    <a href="#cases">Cases</a>
+    <a href="#finding">Finding</a>
+    <a href="#errors">Errors</a>
+    <a href="#credits">Credits</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow"><b>EASTD 143A</b> · Hackathon · October 7, 2026</p>
+      <h1>Keeping Land in the Family<span class="q">?</span></h1>
+      <p class="sub">Tracing kinship, accumulation, and division across Chinese land deeds from Fujian, 1875–1936</p>
+    </div>
+    <div class="seal" aria-hidden="true">族契</div>
+  </div>
+</header>
+
+<main>
+
+<section id="question">
+  <div class="wrap">
+    <span class="num">01 · Question</span>
+    <h2>Did land stay within kin networks?</h2>
+    <p class="question">How did kinship shape the transfer, consolidation, and division of land in a small set of Chinese land deeds?</p>
+    <p>Large statistics can tell us how often relatives traded with one another. They cannot tell us <em>how</em> property moved between them. So we use the whole collection only as background, and follow three families through runs of linked documents: deeds, pawn contracts, tax receipts, and a household division agreement.</p>
+    <p>The question mark in our title is on purpose. Some land did move along kin lines. But outsiders kept entering, pawned land could be redeemed, and brothers divided what one generation had gathered.</p>
+  </div>
+</section>
+
+<section id="corpus">
+  <div class="wrap">
+    <span class="num">02 · Corpus</span>
+    <h2>The University of Pittsburgh Chinese Land Records</h2>
+    <p>We worked from the <a href="https://digital.library.pitt.edu/collection/chinese-land-records" target="_blank" rel="noopener">Chinese Land Records collection</a> of the University of Pittsburgh Library System. Every record was turned into a row of structured data: date, document type, parties, place, land, and price.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">234</div><div class="l">unique records</div></div>
+      <div class="stat"><div class="v">213</div><div class="l">from Fujian province</div></div>
+      <div class="stat"><div class="v">97</div><div class="l">from the Fuzhou core (閩 / 侯官 / 閩侯)</div></div>
+      <div class="stat"><div class="v">73%</div><div class="l">late Qing or Republican (171 records)</div></div>
+    </div>
+    <h3 style="font-size:1.05em; margin-top:1.5em">Records by period</h3>
+    <div class="bars" role="img" aria-label="Records by period: Ming 1, early Qing 10, mid Qing 26, late Qing 74, Republic 97, after 1949 23, undated 3.">
+      <div class="bar"><div class="lab">Ming <span>–1643</span></div><div class="track"><div class="fill" style="width:1.03%"></div></div><div class="n">1</div></div>
+      <div class="bar"><div class="lab">Early Qing <span>1644–1795</span></div><div class="track"><div class="fill" style="width:10.3%"></div></div><div class="n">10</div></div>
+      <div class="bar"><div class="lab">Mid Qing <span>1796–1850</span></div><div class="track"><div class="fill" style="width:26.8%"></div></div><div class="n">26</div></div>
+      <div class="bar focus"><div class="lab">Late Qing <span>1851–1911</span></div><div class="track"><div class="fill" style="width:76.3%"></div></div><div class="n">74</div></div>
+      <div class="bar focus"><div class="lab">Republic <span>1912–1948</span></div><div class="track"><div class="fill" style="width:100%"></div></div><div class="n">97</div></div>
+      <div class="bar"><div class="lab">After 1949</div><div class="track"><div class="fill" style="width:23.7%"></div></div><div class="n">23</div></div>
+      <div class="bar"><div class="lab">Undated</div><div class="track"><div class="fill" style="width:3.1%"></div></div><div class="n">3</div></div>
+    </div>
+    <p class="note">Red bars are the periods our three cases come from. The catalog metadata is sometimes wrong, so where we could, we compared it with what the document itself says (see <a href="#errors">Errors</a>).</p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <span class="num">03 · Method</span>
+    <h2>How we identify kinship</h2>
+    <p>Not all evidence of kinship is equally strong. We ranked it in three levels and only make claims from the top one.</p>
+    <div class="ladder">
+      <div class="rung strong">
+        <div class="v">23<small>records</small></div>
+        <div><h3>Explicit kinship term <span class="tag">strongest</span></h3>
+        <p>The deed itself names the relationship between seller and buyer: <span class="cjk">族兄、族叔、堂兄、從弟、宗兄、侄、叔祖</span>. This is about one record in ten. It is a lower bound: we counted only the terms our notes recorded, and we left out cases where the relatives were only co-sellers on the same side.</p></div>
+      </div>
+      <div class="rung mid">
+        <div class="v">39<small>of 122</small></div>
+        <div><h3>Same surname <span class="tag">suggestive</span></h3>
+        <p>Of the 122 records whose catalog entry names both a seller and a buyer, 39 (32%) share a surname. Sharing a surname makes kinship more likely, but it does not prove it.</p></div>
+      </div>
+      <div class="rung weak">
+        <div class="v">✓<small>where possible</small></div>
+        <div><h3>Metadata checked against the text <span class="tag">verification</span></h3>
+        <p>Catalog titles give "Seller" and "Buyer", and these are sometimes wrong. We trust the wording of the document over the catalog, and we mark every disagreement instead of fixing it silently.</p></div>
+      </div>
+    </div>
+    <p class="note">Reading direction: in <span class="cjk">林應香 賣與族兄林萬開</span>, the seller calls the buyer "clan elder brother". So 族兄 is the buyer's relation to the seller.</p>
+  </div>
+</section>
+
+<section id="cases">
+  <div class="wrap">
+    <span class="num">04 · Three family cases</span>
+    <h2>Three ways property moved through kin</h2>
+
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th>Case</th><th>Kinship evidence</th><th>Transfer pattern</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td>林萬開</td><td>Explicit: 族兄, 族叔, 堂兄; brothers 萬拱, 萬欽</td><td>Repeated acquisition → partition → outside purchase</td><td>A family network that gathers land and then divides it</td></tr>
+          <tr><td>陳必清 → 陳必泉</td><td>Same surname only; no term stated</td><td>Pawn (典) → outright sale → tax receipt</td><td>Transfer as a gradual process, not a single event</td></tr>
+          <tr><td>陳欽瑞</td><td>Explicit: 宗兄 (1932), 從弟 (1936)</td><td>Several outright sales with top-up price (找價)</td><td>Consolidation from kin of the same generation (欽)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="legend" aria-label="Timeline legend">
+      <span class="lk">transfer between named kin</span>
+      <span class="ls">same surname, no kin term</span>
+      <span class="lo">transfer with an outsider</span>
+      <span class="ld">household division</span>
+      <span class="lr">registration / tax paper</span>
+    </div>
+
+    <!-- Case 1 -->
+    <div class="case" id="case-lin">
+      <div class="case-head"><span class="k">CASE 1</span><h3><span class="cjk">林萬開</span> LIN Wankai</h3></div>
+      <p class="mech">kin-based acquisition → accumulation → household division → continued outside acquisition</p>
+      <ol class="tl">
+        <li class="ev kin-ev"><div class="yr">1875</div><div class="dot"></div><div class="body">
+          <div class="dt">賣斷根面契<span class="en">outright sale of full rights (根 + 面)</span></div>
+          <div class="parties cjk">林應香 → <span class="kin">族兄</span>林萬開</div>
+          <div class="meta"><span class="cjk">田價錢壹百零捌千文</span><span>108,000 cash</span><span class="cjk">草市都馬坑</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607785" target="_blank" rel="noopener">pitt:…607785</a></div>
+          <div class="meta" style="margin-top:.3em">Re-registered in 1913: 契單, 田 2.3 畝, 申銀 108 元 · <a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607694" target="_blank" rel="noopener">pitt:…607694</a></div>
+        </div></li>
+        <li class="ev kin-ev"><div class="yr">1881</div><div class="dot"></div><div class="body">
+          <div class="dt">賣斷田根契<span class="en">outright sale of subsoil rights (田根)</span></div>
+          <div class="parties cjk">林春發 → <span class="kin">族叔</span>林萬開</div>
+          <div class="meta"><span class="cjk">田根價錢壹百壹拾千文</span><span>110,000 cash · 4 plots + a pond, 2.5 畝</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607801" target="_blank" rel="noopener">pitt:…607801</a></div>
+        </div></li>
+        <li class="ev kin-ev"><div class="yr">1884</div><div class="dot"></div><div class="body">
+          <div class="dt">撥典田面契<span class="en">transfer of a pawned surface right (田面)</span></div>
+          <div class="parties cjk">林秋溥 → <span class="kin">堂兄</span>林萬開</div>
+          <div class="meta"><span class="cjk">田面價鏡銀肆拾肆兩</span><span>44 taels · 4.8 畝 · rent 860 斤 of grain a year</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607751" target="_blank" rel="noopener">pitt:…607751</a></div>
+          <div class="flag"><b>Not a purchase.</b> 林秋溥 had taken this land in pawn from an outsider, <span class="cjk">何德興</span>, and passed the pawn on to his cousin. The original owner could still redeem it (<span class="cjk">照契面銀兩取贖</span>). Land that "entered the family" here came from outside, and could leave again.</div>
+        </div></li>
+        <li class="ev kin-ev reg-ev"><div class="yr">1887</div><div class="dot"></div><div class="body">
+          <div class="dt">契尾<span class="en">official tax receipt</span></div>
+          <div class="parties cjk">業戶林萬開 買 林秋溥田</div>
+          <div class="meta"><span>44 taels, 3% tax · <span class="cjk">侯字壹萬叁千拾陸號</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607876" target="_blank" rel="noopener">pitt:…607876</a></div>
+          <div class="flag"><b>Possible metadata reversal.</b> The catalog lists 林萬開 as seller. The receipt names him as the buyer. <a href="#errors">See Errors.</a></div>
+        </div></li>
+        <li class="ev div-ev"><div class="yr">1891</div><div class="dot"></div><div class="body">
+          <div class="dt">分關書<span class="en">household division agreement · 10 pages</span></div>
+          <div class="parties cjk">林萬開 與 <span class="kin">兄弟</span>萬拱、萬欽 · 分作三房</div>
+          <div class="meta"><span>Fields, houses, hill land, and gardens split into three branches; grain tax and 350 斤 of rent assigned</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607645" target="_blank" rel="noopener">pitt:…607645</a></div>
+        </div></li>
+        <li class="ev out-ev reg-ev"><div class="yr">1894</div><div class="dot"></div><div class="body">
+          <div class="dt">斷賣契單<span class="en">1913 registration of an 1894 outright sale</span></div>
+          <div class="parties cjk">王兆熙 → 林萬開 <span class="en" style="font-family:var(--font-body)">(witness 王聯登)</span></div>
+          <div class="meta"><span>田 2 畝 · 申銀 138 元 · <span class="cjk">三十八都白龍坛</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607744" target="_blank" rel="noopener">pitt:…607744</a></div>
+          <div class="flag"><b>Catalog says the seller is 王聯鄧.</b> Our notes on the document read 王聯登 as the witness, not the seller.</div>
+        </div></li>
+      </ol>
+      <p class="takeaway"><b>Takeaway.</b> In about ten years 林萬開 gathered land from three relatives: a clan younger brother, a clan nephew, and a cousin. Then he and his brothers divided the family estate, and three years after that he was buying from the 王 family. The family estate was a stage in a longer process, not its end point.</p>
+    </div>
+
+    <!-- Case 2 -->
+    <div class="case" id="case-chen-bq">
+      <div class="case-head"><span class="k">CASE 2</span><h3><span class="cjk">陳必清 → 陳必泉</span> CHEN Biqing → CHEN Biquan</h3></div>
+      <p class="mech">典 pawn → 賣斷 outright sale → 契尾 tax receipt → 契單 re-registration</p>
+      <ol class="tl">
+        <li class="ev"><div class="yr">1887</div><div class="dot"></div><div class="body">
+          <div class="dt">典契<span class="en">pawn (conditional sale)</span></div>
+          <div class="parties cjk">陳必清 → 陳必泉 · 墻屋全座</div>
+          <div class="meta"><span class="cjk">典出墻屋價鏡銀弍百兩正</span><span>200 taels · 5-year term (約伍年為限)</span><span class="cjk">閩邑茶葉街</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066267893" target="_blank" rel="noopener">pitt:…267893</a></div>
+        </div></li>
+        <li class="ev"><div class="yr">1888</div><div class="dot"></div><div class="body">
+          <div class="dt">賣斷契<span class="en">outright sale, same house</span></div>
+          <div class="parties cjk">陳必清 → 陳必泉 · 墻屋全座 (連後空地)</div>
+          <div class="meta"><span class="cjk">墻厝價鏡銀玖拾捌兩正</span><span>98 taels</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066267901" target="_blank" rel="noopener">pitt:…267901</a></div>
+        </div></li>
+        <li class="ev reg-ev"><div class="yr">1888</div><div class="dot"></div><div class="body">
+          <div class="dt">契尾<span class="en">official tax receipt</span></div>
+          <div class="parties cjk">業戶陳必泉 買 陳必清屋</div>
+          <div class="meta"><span class="cjk">價銀叁百零貳兩正</span><span>302 taels ≈ 200 + 98</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066266416" target="_blank" rel="noopener">pitt:…266416</a></div>
+        </div></li>
+        <li class="ev reg-ev"><div class="yr">1913</div><div class="dot"></div><div class="body">
+          <div class="dt">斷賣契單<span class="en">Republican re-registration</span></div>
+          <div class="parties cjk">陳必泉 (seller written as 陳<b>以</b>清)</div>
+          <div class="meta"><span>302 兩 → 444 元 (≈ 1.47 元 per 兩)</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066267919" target="_blank" rel="noopener">pitt:…267919</a></div>
+        </div></li>
+      </ol>
+      <p class="takeaway"><b>Takeaway.</b> The house changed hands in steps. First it was pawned for 200 taels. A year later it was sold outright for 98 more. The state then taxed the combined 302 taels, about the sum of the two. The tax receipt shows that the pawn and the sale were treated as one transfer. <b>Caution:</b> no kinship term appears, so the shared surname here is suggestive only.</p>
+    </div>
+
+    <!-- Case 3 -->
+    <div class="case" id="case-chen-qr">
+      <div class="case-head"><span class="k">CASE 3</span><h3><span class="cjk">陳欽瑞</span> CHEN Qinrui</h3></div>
+      <p class="mech">serial acquisition from same-generation kin (欽 generation name)</p>
+      <ol class="tl">
+        <li class="ev kin-ev"><div class="yr">1932</div><div class="dot"></div><div class="body">
+          <div class="dt">盡根斷賣契<span class="en">final outright sale</span></div>
+          <div class="parties cjk">欽源 → <span class="kin">宗兄</span>欽瑞 · 民園壹段 玖分</div>
+          <div class="meta"><span class="cjk">洋銀大龍番壹佰柒拾員</span><span>170 Dragon dollars · Fuqing</span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066266655" target="_blank" rel="noopener">pitt:…266655</a></div>
+        </div></li>
+        <li class="ev kin-ev"><div class="yr">1936</div><div class="dot"></div><div class="body">
+          <div class="dt">盡根斷賣契並找價 · A<span class="en">sale with top-up price, garden plot</span></div>
+          <div class="parties cjk">陳欽隆 → <span class="kin">從弟</span>陳欽瑞 · 民園一段 伍分</div>
+          <div class="meta"><span>60 元 · <span class="cjk">長坵落</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066237706" target="_blank" rel="noopener">pitt:…237706</a><span>and</span><span>60 元 · <span class="cjk">長垣落(?)</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066266622" target="_blank" rel="noopener">pitt:…266622</a></div>
+        </div></li>
+        <li class="ev kin-ev"><div class="yr">1936</div><div class="dot"></div><div class="body">
+          <div class="dt">盡根斷賣契並找價 · B<span class="en">sale with top-up price, rice field</span></div>
+          <div class="parties cjk">陳欽隆 → <span class="kin">從弟</span>陳欽瑞 · 民田壹段 陸分</div>
+          <div class="meta"><span>115 元 · <span class="cjk">莊厝前坑</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066266663" target="_blank" rel="noopener">pitt:…266663</a><span>and</span><span>115 元 · <span class="cjk">庄厝前坑落</span></span><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735066266671" target="_blank" rel="noopener">pitt:…266671</a></div>
+          <div class="flag"><b>Four records, probably two transactions.</b> All four are dated the same month (1936, 2nd month), and they come in pairs with the same price, area, and almost the same place name. We think each pair is two copies of one deed. This still needs to be checked against the originals.</div>
+        </div></li>
+      </ol>
+      <p class="takeaway"><b>Takeaway.</b> 陳欽瑞 bought from two men who share his generation name 欽. The 1932 seller calls him clan elder brother (宗兄), and the 1936 seller calls him cousin (從弟). Each deed is "final" (盡根) and includes the top-up price (找價), which closes off any later claim to the land.</p>
+    </div>
+  </div>
+</section>
+
+<section id="finding">
+  <div class="wrap">
+    <span class="num">05 · Finding</span>
+    <h2>What the deeds show</h2>
+    <p class="finding">Kinship did not simply keep land unchanged within a family. Property moved through kin networks by <em>repeated purchase</em>, by <em>pawning followed by outright sale</em>, and by <em>partition among brothers</em>.</p>
+    <div class="mechs">
+      <div><h3>Repeated purchase</h3><p>林萬開 and 陳欽瑞 each gathered plots from several relatives. The relationship is written into the deed.</p></div>
+      <div><h3>Pawn, then sale</h3><p>陳必清's house passed to 陳必泉 in two steps, and the tax receipt adds the two prices together.</p></div>
+      <div><h3>Partition</h3><p>The 1891 division agreement split 林萬開's family estate into three branches.</p></div>
+      <div><h3>Outsiders keep entering</h3><p>The 何 family (behind the 1884 pawn) and the 王 family (1894) show that kin networks were open to outsiders.</p></div>
+    </div>
+    <p class="lead">Family property was not static. It was constantly rearranged through deals among relatives, and between relatives and outsiders.</p>
+    <p class="note">Scope: three families, sixteen records, all from Fujian. The pattern illustrates mechanisms and is not a rate for the whole collection.</p>
+  </div>
+</section>
+
+<section id="errors">
+  <div class="wrap">
+    <span class="num">06 · What the machine (and the catalog) got wrong</span>
+    <h2>When the record disagrees with the document</h2>
+    <p>Our AI-assisted extraction flagged places where the catalog metadata and the document's own wording do not match. We treat each one as a question to check, not as a correction to accept.</p>
+    <div class="disc">
+      <article>
+        <span class="status">Flagged · not yet checked against the original</span>
+        <h3>Buyer and seller reversed</h3>
+        <dl class="cmpl"><dt>Catalog</dt><dd class="cjk">Seller: 林萬開 — Buyer: 林秋溥</dd><dt>Document</dt><dd class="cjk">業戶林萬開 買 林秋溥田</dd><dt>Record</dt><dd><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607876" target="_blank" rel="noopener">pitt:31735064607876</a> (契尾, 1887)</dd></dl>
+        <p class="note" style="margin:0">The 1884 deed already has 林秋溥 transferring to 林萬開, which supports the document's reading.</p>
+      </article>
+      <article>
+        <span class="status">Flagged · not yet checked against the original</span>
+        <h3>Witness listed as seller</h3>
+        <dl class="cmpl"><dt>Catalog</dt><dd class="cjk">Seller: 王聯鄧</dd><dt>Document</dt><dd class="cjk">買受 王兆熙 田；證 王聯登</dd><dt>Record</dt><dd><a href="https://digital.library.pitt.edu/islandora/object/pitt%3A31735064607744" target="_blank" rel="noopener">pitt:31735064607744</a> (契單, 1913)</dd></dl>
+      </article>
+      <article>
+        <span class="status">Flagged · not yet checked against the original</span>
+        <h3>Copies counted as separate deals</h3>
+        <dl class="cmpl"><dt>Catalog</dt><dd>Four separate records</dd><dt>Data</dt><dd>Two pairs with the same date, price, and area</dd><dt>Records</dt><dd>…237706 / …266622 and …266663 / …266671</dd></dl>
+      </article>
+      <article>
+        <span class="status">Small discrepancies</span>
+        <h3>Names and places</h3>
+        <p style="margin:0; font-size:.92em">The 1913 契單 writes the seller as <span class="cjk">陳以清</span>, not 陳必清. One 1881 deed says <span class="cjk">侯邑</span> (侯官), while the catalog says 閩侯縣, the later merged county name.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="credits">
+  <div class="wrap">
+    <span class="num">07 · Method disclosure & credits</span>
+    <h2>How this was made</h2>
+    <div class="cols">
+      <div>
+        <h3>Tools and models</h3>
+        <ul>
+          <li><b>Claude</b> (Anthropic), in Claude Desktop, read the deeds with us and extracted each record into a table: date, type, parties, place, land, price, and a confidence level.</li>
+          <li>Claude (Opus 5.5) in Claude Code helped search the table, count the kinship evidence, and build this website.</li>
+          <li>The data is in this repository as <a href="chinese_land_records/pitt_chinese_land_records_234.csv">CSV</a> and <a href="chinese_land_records/pitt_chinese_land_records_234.xlsx">XLSX</a>.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What we checked ourselves</h3>
+        <ul>
+          <li>Kinship terms are counted only where they were recorded from the document text.</li>
+          <li>Each record carries a confidence level (93 high, 120 medium, 21 low).</li>
+          <li>Disagreements between the catalog and the document are marked, not silently fixed.</li>
+          <li>No document images are reproduced here. Every record links to the library's own page.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.05em; margin-top:2em">Who did what</h3>
+    <div class="team">
+      <div><b>Huiling Hu</b><span>Research question, data extraction, analysis, case selection, and website</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Source documents: <a href="https://digital.library.pitt.edu/collection/chinese-land-records" target="_blank" rel="noopener">Chinese Land Records</a>, University of Pittsburgh Library System, Digital Collections. All rights to the original documents remain with the University of Pittsburgh. This site shows only our own transcribed data and analysis.</p>
+    <p>EASTD 143A · Hackathon project · 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
