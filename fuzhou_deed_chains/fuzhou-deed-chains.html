@@ -1,0 +1,168 @@
+<title>福州契约产权链</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: a deed-archive ledger — sticky filter bar, then one section per property, each a vertical timeline of transfers with the year in a left gutter. */
+:root{
+  --bg:#f2f3ef; --surface:#fbfbf8; --ink:#1f2a2e; --muted:#5d6a6c; --line:#d6d9d2;
+  --seal:#b3352b; --seal-soft:#f3dedb; --ink-blue:#2f4f5f;
+  --hi:#2e6b4a; --hi-bg:#dcebe2; --mid:#8a6414; --mid-bg:#f1e6cc; --lo:#7b5e7b; --lo-bg:#ece1ec;
+  --f-display:"Noto Serif TC","Songti TC","SimSun",serif;
+  --f-body:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+  --f-num:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161b1d; --surface:#1e2528; --ink:#e4e7e2; --muted:#9aa6a6; --line:#33403f;
+  --seal:#e0685c; --seal-soft:#3d2422; --ink-blue:#9cc2d3;
+  --hi:#8fd1a9; --hi-bg:#1f3a2b; --mid:#e2bf6f; --mid-bg:#3a3020; --lo:#d3b2d3; --lo-bg:#352a35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161b1d; --surface:#1e2528; --ink:#e4e7e2; --muted:#9aa6a6; --line:#33403f;
+  --seal:#e0685c; --seal-soft:#3d2422; --ink-blue:#9cc2d3;
+  --hi:#8fd1a9; --hi-bg:#1f3a2b; --mid:#e2bf6f; --mid-bg:#3a3020; --lo:#d3b2d3; --lo-bg:#352a35; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:40px 64px}
+header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:20px}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,5vw,46px);line-height:1.15;margin:0;letter-spacing:.04em;text-wrap:balance}
+.lede{color:var(--muted);margin:10px 0 0;max-width:62ch}
+.seal{width:76px;height:76px;border:3px solid var(--seal);color:var(--seal);border-radius:6px;display:grid;grid-template-columns:1fr 1fr;place-items:center;font-family:var(--f-display);font-weight:900;font-size:22px;line-height:1;padding:6px;transform:rotate(-4deg)}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin:18px 0 0;font-size:13px;color:var(--muted)}
+.stats b{font-family:var(--f-num);color:var(--ink);font-size:18px;margin-right:4px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+#q{flex:1 1 200px;min-width:0;font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.chain{margin-top:44px}
+.chain-head{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:baseline}
+.letter{font-family:var(--f-display);font-weight:900;font-size:40px;color:var(--seal);line-height:1;grid-row:span 2}
+.chain h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;text-wrap:balance}
+.span{font-family:var(--f-num);font-size:13px;color:var(--muted)}
+.flow{margin:14px 0 0;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:14px;color:var(--ink-blue)}
+.flow span.arrow{color:var(--seal);margin:0 6px}
+.note{margin:10px 0 0;font-size:14px;color:var(--muted);max-width:68ch}
+ol.tl{list-style:none;margin:20px 0 0;padding:0}
+ol.tl li{display:grid;grid-template-columns:92px 1fr;gap:16px;position:relative}
+.yr{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:15px;padding-top:14px;color:var(--ink)}
+.yr small{display:block;font-family:var(--f-body);font-size:11px;color:var(--muted);line-height:1.4}
+.ev{border-left:2px solid var(--line);padding:12px 0 18px 22px;position:relative;min-width:0}
+.ev::before{content:"";position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--seal)}
+.ev.inferred::before{border-style:dashed;border-color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.type{font-weight:700}
+.pill{font-size:11px;letter-spacing:.06em;border-radius:4px;padding:1px 8px;white-space:nowrap}
+.p-hi{background:var(--hi-bg);color:var(--hi)}.p-mid{background:var(--mid-bg);color:var(--mid)}.p-lo{background:var(--lo-bg);color:var(--lo)}
+.parties{margin:4px 0 0;font-size:16px}
+.parties .arrow{color:var(--seal);margin:0 8px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;margin:8px 0 0;font-size:13.5px}
+dt{color:var(--muted)} dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.files{font-family:var(--f-num);font-size:12px}
+.warn{margin-top:8px;font-size:13px;background:var(--seal-soft);border-radius:4px;padding:6px 10px;color:var(--ink)}
+.warn b{color:var(--seal)}
+.empty{margin-top:40px;color:var(--muted)}
+footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted);max-width:72ch}
+@media (max-width:600px){
+  header{grid-template-columns:1fr}.seal{display:none}
+  ol.tl li{grid-template-columns:1fr;gap:0}
+  .yr{text-align:left;padding-top:8px}.yr small{display:inline;margin-left:8px}
+  dl{grid-template-columns:1fr}dt{margin-top:4px}
+}
+@media (prefers-reduced-motion:no-preference){.chain{animation:in .4s ease both}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>福州契约产权链</h1>
+      <p class="lede">从 234 件清代至民国的福州地契 OCR 文本中，按坐落、四至和契中所附上手契，串出的 6 处产业的转手过程。每一行是一次交易或一次官方验契。</p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="seal" aria-hidden="true"><span>產</span><span>權</span><span>契</span><span>鏈</span></div>
+  </header>
+
+  <div class="bar" role="search">
+    <div class="chips" id="chips"></div>
+    <input id="q" type="search" placeholder="搜索人名、地名、文件编号…" aria-label="搜索">
+    <div class="chips" id="conf"></div>
+  </div>
+
+  <main id="out"></main>
+  <p class="empty" id="empty" hidden>没有符合条件的记录。换个关键词，或者点“全部”。</p>
+
+  <footer>
+    资料来源：<span class="files">students_documents_export.zip</span> 中的 OCR 结果。“把握程度”表示能否确定属于同一处产业：高＝坐落、四至或上手契可以直接对上；中＝据后契追述或细节有出入；低＝仅为推测。标“待核”的地方，OCR 可能有误，请以原图为准。人名、地名部分保留原文繁体。
+  </footer>
+</div>
+
+<script>
+const ROWS = [{"产权链":"A 秋龙社鄒家厝屋","序号":"1","原文纪年":"未见日期","公元":"—","文书类型":"卖断契","出让方（立契人）":"張銓銓（承嗣父遗）","承受方":"鄒道明","标的":"厝屋三柱二栏，共二堵，横阔2丈2尺，直深2丈4尺；厝角水井通用","坐落":"闽邑嘉崇里文山铺秋龙社","价格/币种":"银40两（纹广）","附缴上手契":"—","文件编号":"31735064607611_001；31735068223308_001","把握程度":"高","备注/待核":"68223308 应为同一契的另一份或草稿：OCR 把“鄒”误作“鄧”，后半段有重复识别错误"},{"产权链":"A 秋龙社鄒家厝屋","序号":"2","原文纪年":"光绪二十六年闰八月","公元":"1900","文书类型":"卖断契","出让方（立契人）":"鄒允春（承父手置）","承受方":"和意轩老人会","标的":"同上（四至、尺寸、水井描述一致）","坐落":"闽邑嘉崇里文山铺秋龙社","价格/币种":"库平银44两","附缴上手契":"张铨铨原契1纸＋司单1纸，共3纸","文件编号":"31735064607496_001；31735068223316_001","把握程度":"高","备注/待核":"68223316 是同一契的另一份，OCR 作“鄒先燕”“光绪二十五年”；光绪二十五年没有闰八月，二十六年有，所以以二十六年为准；鄒允春之父应即鄒道明"},{"产权链":"B 秋龙社下底埕王家厝屋","序号":"1","原文纪年":"未见日期","公元":"—","文书类型":"原契（已遗失）","出让方（立契人）":"郭宗付（？）","承受方":"郭宗仲（？）","标的":"—","坐落":"—","价格/币种":"—","附缴上手契":"—","文件编号":"（见于 31735064607512_001 注记）","把握程度":"中","备注/待核":"王三妹典契注明“郭宗付老原契遗失”"},{"产权链":"B 秋龙社下底埕王家厝屋","序号":"2","原文纪年":"光绪三十二年三月","公元":"1906","文书类型":"卖断契","出让方（立契人）":"郭宗仲（自己手置）","承受方":"王齐发","标的":"二柱厝屋一栏，左边房屋一堵＋右边廊墘一小堵，共三堵；坐北向南","坐落":"闽邑文山铺秋龙社","价格/币种":"镜银（数额 OCR 不清）","附缴上手契":"郭宗仲老原契1纸，共3纸","文件编号":"31735066237490_001","把握程度":"高","备注/待核":"四至：前至天井、后至墙、左至廊墘、右至王家"},{"产权链":"B 秋龙社下底埕王家厝屋","序号":"3","原文纪年":"民国十三年二月","公元":"1924","文书类型":"典契（含官颁典契纸）","出让方（立契人）":"王三妹（承继父遗）","承受方":"陈军汉","标的":"同上（二柱一栏，共三堵，坐北向南，四至相同）","坐落":"福州闽侯县文山铺秋龙社下底埕","价格/币种":"台伏125元＋修理费10元＝135元；5年为期，期满可赎；契税3元7角5分","附缴上手契":"王齐发契1纸，共2纸","文件编号":"31735064607512_001；31735064607512_002","把握程度":"高","备注/待核":"“王三妹”可能就是王齐发的继承人"},{"产权链":"B 秋龙社下底埕王家厝屋","序号":"4","原文纪年":"民国二十三年五月","公元":"1934","文书类型":"卖契（据后契追述）","出让方（立契人）":"王细细孙（？）","承受方":"王炳凯","标的":"—","坐落":"—","价格/币种":"—","附缴上手契":"—","文件编号":"（见于 31735068223472_001）","把握程度":"中","备注/待核":"原契未见，据1951年继承契追述，并说明已办过户登记"},{"产权链":"B 秋龙社下底埕王家厝屋","序号":"5","原文纪年":"公元一九五一年四月","公元":"1951","文书类型":"继承契","出让方（立契人）":"王细细孙（？）","承受方":"（交买主王炳凯收执）","标的":"厝屋一座，二三柱三栏，楼房二堵＋平房一堵；面积4厘8毫","坐落":"闽侯横山铺秋龙社高顶埕，门牌下底埕1号；第三区十八段4788地号","价格/币种":"—","附缴上手契":"—","文件编号":"31735068223472_001","把握程度":"中（推测）","备注/待核":"四至与 B2、B3 相同，但坐向写作“坐南朝北”，规模也较大，可能经过改建；需核对原图确认是否同一处；为补办契税而立"},{"产权链":"C 秋龙巷林春源→王家","序号":"1","原文纪年":"同治五年三月","公元":"1866","文书类型":"卖断契","出让方（立契人）":"林春源（承父遗）","承受方":"王（家）","标的":"二柱破屋一直三堵＋右边残地一块","坐落":"闽邑嘉崇里秋龙巷","价格/币种":"足色镜银12两","附缴上手契":"原契夹连别业，未缴","文件编号":"31735064607447_001","把握程度":"高","备注/待核":"注明“王姓在店后居住者出入皆由王家店内而行”；中友陈友梅、代笔张秉中"},{"产权链":"C 秋龙巷林春源→王家","序号":"2","原文纪年":"同治八年十二月","公元":"1869","文书类型":"卖断契","出让方（立契人）":"林春源（承父阄分）","承受方":"王庆","标的":"五柱厝屋一直＋后右披屋，共五堵，坐西向东","坐落":"闽邑文山铺秋龙巷","价格/币种":"足色库砵银“拾两”（OCR，可能漏字）","附缴上手契":"原契夹连别业，未缴","文件编号":"31735066237573_001","把握程度":"高","备注/待核":"与 C1 是相邻的两处产业（前至王家店），在见人、中友相同（堂叔长发、堂弟春荣、陈友梅）"},{"产权链":"C 秋龙巷林春源→王家","序号":"3","原文纪年":"光绪十三年冬月","公元":"1887","文书类型":"卖断契（亲属间）","出让方（立契人）":"王锦发（祖遗阄分）","承受方":"堂兄王锦枝","标的":"四柱店面右边半间","坐落":"闽邑横山铺秋龙社，前至官街","价格/币种":"锭银75两（库砵大锭）","附缴上手契":"“内并缀林春源典断契”","文件编号":"31735064607470_001","把握程度":"中","备注/待核":"可见王家的店屋来源于林春源；知契母林氏、胞弟森发"},{"产权链":"C 秋龙巷林春源→王家","序号":"4","原文纪年":"民国二年十一月","公元":"1913","文书类型":"验契单（福建国税厅筹备处）","出让方（立契人）":"—","承受方":"业户王元霸","标的":"同治八年所买“陈（林）春源”厝屋一座","坐落":"闽县文山铺","价格/币种":"产价银40元（OCR）","附缴上手契":"原契未税，呈验","文件编号":"31735066237573_002","把握程度":"高","备注/待核":"北洋政府验契，追认清代白契；OCR 把“林春源”作“陈春源”"},{"产权链":"C 秋龙巷林春源→王家","序号":"5","原文纪年":"民国十五年八月","公元":"1926","文书类型":"验税契证（福建财政厅）","出让方（立契人）":"—","承受方":"业户王元雷（应即王元霸）","标的":"已税断契1纸","坐落":"—","价格/币种":"产价44.4元","附缴上手契":"—","文件编号":"31735066237573_003","把握程度":"高","备注/待核":"国民政府时期再次验契；该页有重复识别错误"},{"产权链":"D 横街铺茶叶街墙屋","序号":"1","原文纪年":"道光二十三至二十七年","公元":"1843–1847","文书类型":"典契（据后契追述）","出让方（立契人）":"吴开扬","承受方":"陈、郑、魏等姓","标的":"厝屋四间二栏＋土库、拔水等","坐落":"闽邑横街铺","价格/币种":"—","附缴上手契":"—","文件编号":"（见于 31735064607488_001）","把握程度":"中","备注/待核":"原典契附在 D2 的25纸里，本批材料中未单独看到"},{"产权链":"D 横街铺茶叶街墙屋","序号":"2","原文纪年":"同治九年十二月","公元":"1870","文书类型":"赎回后卖断契","出让方（立契人）":"吴开成及侄瑞枝、长庚","承受方":"陈（姓）","标的":"厝屋（同上）","坐落":"闽邑横街铺","价格/币种":"银68两","附缴上手契":"赎回契、借字、历次典契、老契等，共25纸","文件编号":"31735064607488_001","把握程度":"高","备注/待核":"先从各典主手中赎回，再整体卖断；知契嫂洪氏、陈氏"},{"产权链":"D 横街铺茶叶街墙屋","序号":"3","原文纪年":"光绪十年十月","公元":"1884","文书类型":"永远卖断契","出让方（立契人）":"陈必清（阄分份下自盖）","承受方":"陈必泉","标的":"墙屋全座，五柱四栏，四面风火墙；横阔4丈2尺，直深5丈5尺，另有墙外空地","坐落":"闽邑嘉崇里横街铺惠泽境茶叶街","价格/币种":"镜银98两","附缴上手契":"吴开扬典契司单2纸＋吴开成断契司单2纸","文件编号":"31735066267901_001","把握程度":"高","备注/待核":"光绪二十年八月有“现管陈之福”的批注"},{"产权链":"D 横街铺茶叶街墙屋","序号":"4","原文纪年":"光绪十三年十一月（OCR）","公元":"1887（？）","文书类型":"典契","出让方（立契人）":"陈必清","承受方":"陈必泉（OCR 误作“陈必清”）","标的":"同上","坐落":"同上","价格/币种":"银200两；5年为期，期满可赎","附缴上手契":"同 D3","文件编号":"31735066267893_001","把握程度":"中","备注/待核":"时间晚于 D3 的卖断，典价反而更高，年份或数额很可能有 OCR 错误，需核对原图"},{"产权链":"D 横街铺茶叶街墙屋","序号":"5","原文纪年":"民国六年十二月","公元":"1917","文书类型":"官颁典契纸","出让方（立契人）":"陈灿祥","承受方":"吴（姓）","标的":"墙屋一庄","坐落":"横街铺茶叶街","价格/币种":"典价700元，契税21元","附缴上手契":"—","文件编号":"31735064607504_001","把握程度":"低（推测）","备注/待核":"同一条街、同一类“墙屋”，出典人姓陈，可能是陈家后人出典；需进一步核对"},{"产权链":"E 五甲街店屋","序号":"1","原文纪年":"未见日期","公元":"—","文书类型":"历次上手契（据后契清单）","出让方（立契人）":"鄔细细佛、樊汝济、杨生春等","承受方":"—","标的":"—","坐落":"—","价格/币种":"—","附缴上手契":"—","文件编号":"（见于 31735064607421_001）","把握程度":"中","备注/待核":"清单顺序为：王依增断契、樊汝济断契、杨生春断契及税证、鄔细细佛断契及税证，共8纸；转手先后待核"},{"产权链":"E 五甲街店屋","序号":"2","原文纪年":"民国三十五年五月","公元":"1946","文书类型":"买断（据后契追述）","出让方（立契人）":"王依增","承受方":"张学车","标的":"店屋，坐西向东，五柱直进单栏","坐落":"福州市五甲街19号，3区11段1401地号，面积14毫","价格/币种":"—","附缴上手契":"—","文件编号":"（见于 31735064607421_001）","把握程度":"高","备注/待核":"—"},{"产权链":"E 五甲街店屋","序号":"3","原文纪年":"民国三十五年六月","公元":"1946","文书类型":"卖断契＋官颁不动产买卖契表格","出让方（立契人）":"张学车","承受方":"陈书宝","标的":"同上","坐落":"五甲街；表格写门牌27号，3区22段998地号","价格/币种":"契文写国币1万元；表格写屋价“人民币”180万元、税额10万8千余","附缴上手契":"上手契共8纸","文件编号":"31735064607421_001","把握程度":"高","备注/待核":"同一笔交易，契文和表格的价格、币种、门牌、地号都对不上，需核对原图；印章英文描述把“学车”误作 School Bus"},{"产权链":"F 黄毓辰民田（检一都）","序号":"1","原文纪年":"乾隆二十五年五月","公元":"1760","文书类型":"典契","出让方（立契人）":"黄毓辰（承祖）","承受方":"叶（姓）","标的":"民田数号，受种5斗6升5合，年租米5石6斗余","坐落":"检一都，土名和尚垄、长垄等","价格/币种":"纹广银63两；5年为期，期满可赎","附缴上手契":"—","文件编号":"31735064607546_001","把握程度":"高","备注/待核":"—"},{"产权链":"F 黄毓辰民田（检一都）","序号":"2","原文纪年":"乾隆三十二年五月","公元":"1767","文书类型":"凑字（加找）","出让方（立契人）":"黄毓辰","承受方":"叶表伯","标的":"同上","坐落":"同上","价格/币种":"凑钱（数额 OCR 不清）","附缴上手契":"原契","文件编号":"31735064607546_002","把握程度":"高","备注/待核":"典后加找的实例：典期满7年仍未赎回，再向典主要钱、延长期限"}];
+const CHAINS = {
+  A:{flow:["張銓銓","鄒道明","鄒允春","和意轩老人会"],note:"同一处三柱二栏厝屋，四至、尺寸、水井通用的描述在两份契中一致；鄒允春“承父手置”，其父应即鄒道明。"},
+  B:{flow:["郭宗仲","王齐发","王三妹（出典给陈军汉）","王炳凯"],note:"下底埕一处二柱一栏厝屋。1924 年典契附缴王齐发契，1951 年继承契四至相同，但坐向与规模有出入。"},
+  C:{flow:["林春源","王家（王庆）","王锦发 → 王锦枝","王元霸 民国验契"],note:"同治年间林春源分两次把相邻产业卖给王家，光绪年间王家亲属转手店面并附林春源契，民国二年、十五年两次验契。横跨清代白契与民国登记两套制度。"},
+  D:{flow:["吴开扬（出典）","吴开成（赎回后卖断）","陈必清","陈必泉"],note:"同治九年一次交易附缴 25 纸文书，完整保留了出典、赎回、卖断的过程。"},
+  E:{flow:["鄔、樊、杨等","王依增","张学车","陈书宝"],note:"1946 年卖断契附缴历次上手契共 8 纸。契文与官方表格的价格、币种、门牌、地号对不上。"},
+  F:{flow:["黄毓辰","叶家（典）","叶表伯（加找）"],note:"出典 7 年后未赎，又立凑字向典主加找，是活卖逐步走向绝卖的实例。"}
+};
+const K = Object.keys(ROWS[0]||{});
+const f = r => ({chain:r[K[0]],seq:r[K[1]],era:r[K[2]],ad:r[K[3]],type:r[K[4]],from:r[K[5]],to:r[K[6]],obj:r[K[7]],loc:r[K[8]],price:r[K[9]],prev:r[K[10]],files:r[K[11]],conf:r[K[12]],note:r[K[13]]});
+const data = ROWS.map(f);
+const groups = [...new Set(data.map(d=>d.chain))];
+let sel = "全部", confSel = "全部", q = "";
+try{ sel = localStorage.getItem("chain") || "全部"; }catch(e){}
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const confKey = c => c.startsWith("高")?"hi":c.startsWith("低")?"lo":"mid";
+const empty = v => !v || v==="—";
+
+document.getElementById("stats").innerHTML =
+  `<span><b>${groups.length}</b>处产业</span><span><b>${data.length}</b>条记录</span><span><b>1760–1951</b>时间跨度</span><span><b>${data.filter(d=>/待核|需核对|OCR/.test(d.note)).length}</b>处待核</span>`;
+
+function chipRow(el, items, cur, onPick){
+  el.innerHTML = items.map(t=>`<button class="chip" aria-pressed="${t===cur}" data-v="${esc(t)}">${esc(t)}</button>`).join("");
+  el.onclick = e => { const b=e.target.closest(".chip"); if(b){ onPick(b.dataset.v); } };
+}
+function renderChips(){
+  if(sel!=="全部" && !groups.some(g=>g[0]===sel)) sel="全部";
+  chipRow(document.getElementById("chips"), ["全部",...groups], sel==="全部"?"全部":groups.find(g=>g[0]===sel), v=>{ sel=v==="全部"?v:v[0]; try{localStorage.setItem("chain",sel)}catch(e){} render(); });
+  chipRow(document.getElementById("conf"), ["全部","高","中","低"], confSel, v=>{ confSel=v; render(); });
+  document.getElementById("conf").querySelectorAll(".chip").forEach(b=>{ if(b.dataset.v!=="全部") b.setAttribute("aria-label","把握程度："+b.dataset.v); });
+}
+function render(){
+  renderChips();
+  const out = document.getElementById("out"); let shown = 0;
+  out.innerHTML = groups.filter(g=>sel==="全部"||g[0]===sel).map(g=>{
+    const rows = data.filter(d=>d.chain===g)
+      .filter(d=>confSel==="全部"||d.conf.startsWith(confSel))
+      .filter(d=>!q||Object.values(d).join(" ").includes(q));
+    if(!rows.length) return "";
+    shown += rows.length;
+    const all = data.filter(d=>d.chain===g), yrs = all.map(d=>d.ad).filter(a=>/\d/.test(a));
+    const c = CHAINS[g[0]]||{};
+    return `<section class="chain" id="chain-${g[0]}">
+      <div class="chain-head"><div class="letter">${g[0]}</div><h2>${esc(g.slice(2))}</h2>
+      <div class="span">${esc(yrs[0])} → ${esc(yrs[yrs.length-1])} · ${all.length} 条记录</div></div>
+      <div class="flow">${(c.flow||[]).map(esc).join('<span class="arrow">→</span>')}</div>
+      <p class="note">${esc(c.note||"")}</p>
+      <ol class="tl">${rows.map(d=>{
+        const inferred = /追述|遗失/.test(d.type) || /^（见于/.test(d.files);
+        const warn = /待核|需核对|误|不清|对不上|出入/.test(d.note);
+        return `<li><div class="yr">${empty(d.ad)?"年代不详":esc(d.ad)}<small>${esc(d.era)}</small></div>
+        <div class="ev${inferred?" inferred":""}">
+          <div class="top"><span class="type">${esc(d.type)}</span><span class="pill p-${confKey(d.conf)}">把握：${esc(d.conf)}</span></div>
+          <div class="parties">${esc(d.from)}<span class="arrow">→</span>${esc(d.to)}</div>
+          <dl>
+            ${empty(d.obj)?"":`<dt>标的</dt><dd>${esc(d.obj)}</dd>`}
+            ${empty(d.loc)?"":`<dt>坐落</dt><dd>${esc(d.loc)}</dd>`}
+            ${empty(d.price)?"":`<dt>价格</dt><dd>${esc(d.price)}</dd>`}
+            ${empty(d.prev)?"":`<dt>附缴上手契</dt><dd>${esc(d.prev)}</dd>`}
+            <dt>文件编号</dt><dd class="files">${esc(d.files)}</dd>
+          </dl>
+          ${empty(d.note)?"":`<div class="warn">${warn?"<b>待核</b>　":""}${esc(d.note)}</div>`}
+        </div></li>`;}).join("")}</ol></section>`;
+  }).join("");
+  document.getElementById("empty").hidden = shown>0;
+}
+document.getElementById("q").addEventListener("input", e=>{ q=e.target.value.trim(); render(); });
+render();
+</script>
